@@ -1,18 +1,23 @@
-from typing import Literal
-from mcp.server.fastmcp import FastMCP
 import subprocess
+from typing import Literal
 
-mcp = FastMCP("Zk", debug=True)
+from mcp.server.fastmcp import FastMCP
+
+from settings import Settings
+
+mcp = FastMCP("Zk")
+settings = Settings()  # type: ignore[call-arg]
+
 
 @mcp.tool()
 def get_note_paths(
     include_str: list[str] = [],
-    include_str_operand: Literal['AND', 'OR'] = 'AND',
+    include_str_operand: Literal["AND", "OR"] = "AND",
     exclude_str: list[str] = [],
     include_tags: list[str] = [],
-    include_tags_operand: Literal['AND', 'OR'] = 'AND',
+    include_tags_operand: Literal["AND", "OR"] = "AND",
     exclude_tags: list[str] = [],
-) -> str:
+) -> list[str]:
     """zk CLI を使用してフィルタ条件に一致するノートのパス一覧を取得する。
 
     Args:
@@ -29,7 +34,7 @@ def get_note_paths(
     additional_args: list[str] = []
 
     if len(include_str) > 0:
-        if include_str_operand == 'AND':
+        if include_str_operand == "AND":
             delimiter = " "
         else:
             delimiter = " OR "
@@ -42,7 +47,7 @@ def get_note_paths(
         additional_args.extend(["--match", con])
 
     if len(include_tags) > 0:
-        if include_tags_operand == 'AND':
+        if include_tags_operand == "AND":
             delimiter = ", "
         else:
             delimiter = " OR "
@@ -54,16 +59,26 @@ def get_note_paths(
         con = ", ".join([f"-{item}" for item in exclude_str])
         additional_args.extend(["--tag", con])
 
-    result = subprocess.run([
-        "zk",
-        "list",
-        "--quiet",
-        "--sort", "modified-",
-        "--limit", "50",
-        "--format", "path",
-    ] + additional_args, capture_output=True, text=True)
+    result = subprocess.run(
+        [
+            "zk",
+            "list",
+            "--quiet",
+            "--sort",
+            "modified-",
+            "--limit",
+            "50",
+            "--format",
+            "path",
+        ]
+        + additional_args,
+        capture_output=True,
+        text=True,
+        cwd=str(settings.zk_dir),
+    )
 
     return result.stdout.strip().splitlines()
+
 
 @mcp.tool()
 def get_note(path: str) -> str:
@@ -75,7 +90,8 @@ def get_note(path: str) -> str:
     Returns:
         str: ノートのコンテンツ
     """
-    with open(path, 'r', encoding='utf-8') as f:
+
+    with open(settings.zk_dir / path, "r", encoding="utf-8") as f:
         contents = f.read()
 
     return contents
