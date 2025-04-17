@@ -1,9 +1,10 @@
 import subprocess
+from pathlib import Path
 from typing import Literal
 
 from mcp.server.fastmcp import FastMCP
 
-from models import GetLinkingNotePathsResponse, GetNotePathsResponse, Note
+from models import GetLinkingNotePathsResponse, GetNotePathsResponse, GetTags, Note
 from settings import Settings
 
 mcp = FastMCP("Zk")
@@ -31,7 +32,7 @@ def _get_notes(cmd_args: list[str]) -> list[Note]:
         "--limit",
         "50",
         "--format",
-        "{{path}},{{title}}",
+        '{{path}}|{{title}}|{{join tags ","}}',
     ] + cmd_args
 
     try:
@@ -44,11 +45,18 @@ def _get_notes(cmd_args: list[str]) -> list[Note]:
         )
         results = stdout.stdout.strip().splitlines()
 
-        notes = []
+        notes: list[Note] = []
         for line in results:
-            parts = line.split(",", 1)  # 最初のカンマでのみ分割
-            note = Note(path=parts[0], title=parts[1])  # type: ignore[arg-type]
+            parts = line.split("|", 2)  # (path, title, tags)
 
+            path = parts[0]
+            title = parts[1]
+            if parts[2] == "":
+                tags = []
+            else:
+                tags = parts[2].split(",")
+
+            note = Note(path=Path(path), title=title, tags=tags)
             notes.append(note)
 
         return notes
@@ -112,28 +120,6 @@ def get_note_paths(
 
 
 @mcp.tool()
-def get_note(path: str) -> str:
-    """指定されたパスのノートの内容を読み込んで返す。
-
-    Args:
-        path (str): 読み込むノートファイルへのパス
-
-    Returns:
-        str: ノートのコンテンツ
-    """
-    note_path = settings.zk_dir / path
-
-    try:
-        with open(note_path, "r", encoding="utf-8") as f:
-            contents = f.read()
-        return contents
-    except FileNotFoundError:
-        raise RuntimeError(f"ノートが見つかりません: {path}")
-    except IOError as e:
-        raise RuntimeError(f"ノートの読み込みエラー: {path}") from e
-
-
-@mcp.tool()
 def get_linking_notes(path: str) -> str:
     """指定されたノートに関連するすべてのリンク情報を取得する。
 
@@ -158,6 +144,51 @@ def get_linking_notes(path: str) -> str:
         linked_by_notes=linked_by_notes,
         related_notes=related_notes,
     ).json()
+
+
+@mcp.tool()
+def get_tags() -> str:
+    command = ["zk", "tag", "list", "--format", "{{name}}"]
+
+    tags: list[str] = []
+    try:
+        stdout = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            cwd=str(settings.zk_dir),
+            check=True,
+        )
+        results = stdout.stdout.strip().splitlines()
+
+        for line in results:
+            tags.append(line)
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"zkコマンド実行エラー： {e.stderr}") from e
+
+    return GetTags(tags=tags).json()
+
+
+@mcp.tool()
+def get_note(path: str) -> str:
+    """指定されたパスのノートの内容を読み込んで返す。
+
+    Args:
+        path (str): 読み込むノートファイルへのパス
+
+    Returns:
+        str: ノートのコンテンツ
+    """
+    note_path = settings.zk_dir / path
+
+    try:
+        with open(note_path, "r", encoding="utf-8") as f:
+            contents = f.read()
+        return contents
+    except FileNotFoundError:
+        raise RuntimeError(f"ノートが見つかりません: {path}")
+    except IOError as e:
+        raise RuntimeError(f"ノートの読み込みエラー: {path}") from e
 
 
 if __name__ == "__main__":
