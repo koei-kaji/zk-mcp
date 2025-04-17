@@ -1,0 +1,93 @@
+name: zk-mcp
+version: 1.0.0
+system_prompt: >-
+   zk-mcp は、ノート管理ツール zk によって管理されるノートを、LLMに連携させるためのMCPサーバーを構築する。
+   これにより、LLMがナレッジベースに効率良くアクセすることを可能にする。
+groups:
+  - name: all
+    system_prompt: zk-mcp を構成する zk, mcp, zk-mcp に関する全ての情報をまとめる。
+    opts:
+      remove_config_system_prompt: false
+    data:
+      - mcp-spec
+      - mcp-python-sdk-readme
+      - zk-readme
+      - zk-note-filtering
+      - zk-tags
+      - zk-mcp-pyproject
+      - zk-mcp-file-server
+      - zk-mcp-file-settings
+      - zk-mcp-file-models
+  - name: mcp-development-guide
+    system_prompt: MCPサーバを開発するための情報をまとめる。
+    opts:
+      remove_config_system_prompt: false
+    data:
+      - mcp-spec
+      - mcp-python-sdk-readme
+  - name: about-zk
+    system_prompt: zk についての情報をまとめる。
+    opts:
+      remove_config_system_prompt: false
+    data:
+      - zk-readme
+      - zk-note-filtering
+      - zk-tags
+  - name: zk-mcp
+    system_prompt: zk-mcp を構成する主要ファイルをまとめる。
+    opts:
+      remove_config_system_prompt: false
+    data:
+      - zk-mcp-pyproject
+      - zk-mcp-file-server
+      - zk-mcp-file-settings
+      - zk-mcp-file-models
+data:
+  mcp-spec:
+    type: url
+    path: https://modelcontextprotocol.io/specification/2025-03-26
+    description: >-
+      Model Context Protocol（MCP）は、Anthropicが開発したオープンなプロトコルで、大規模言語モデル（LLM）と外部のデータソースやツールを安全かつ標準的に接続することを目的としている。
+      AIアプリケーションと外部リソースとの統合を簡素化し、再利用性とセキュリティを向上させるための詳細な設計が示されている。
+  mcp-python-sdk-readme:
+    type: url
+    path: https://github.com/modelcontextprotocol/python-sdk/blob/main/README.md
+    description: >-
+      Model Context Protocol（MCP）の公式Python SDKは、LLM（大規模言語モデル）アプリケーションと外部のデータソースやツールを安全かつ標準化された方法で接続するためのライブラリ。
+      このSDKは、MCP仕様の完全な実装を提供し、サーバーとクライアントの両方の開発を容易にする。
+  zk-readme:
+    type: url
+    path: https://github.com/zk-org/zk/blob/main/README.md
+    description: >-
+      zkは、markdown での情報管理を支援するコマンドラインツール。
+      Markdown形式を活用し、効率的なノート作成と整理を可能にする。
+  zk-note-filtering:
+    type: url
+    path: https://zk-org.github.io/zk/notes/note-filtering.html
+    description: >-
+      zkの「ノートの検索とフィルタリング」機能は、タグやリンク、本文の内容など、さまざまな条件でノートを効率的に絞り込むための機能を提供する。
+  zk-tags:
+    type: url
+    path: https://zk-org.github.io/zk/notes/tags.html
+    description: >-
+      zk のタグ機能は、ノートを整理・分類・検索するための強力な機能を提供する。
+  zk-mcp-pyproject:
+    type: file
+    path: pyproject.toml
+    description: >-
+      `${filename}` は、Python パッケージのビルドおよび依存関係管理のための設定ファイル。
+  zk-mcp-file-server:
+    type: file
+    path: server.py
+    description: >-
+      `${filename}` は、zk を MCP を通じて LLM と統合するためのサーバー実装。
+  zk-mcp-file-settings:
+    type: file
+    path: settings.py
+    description: >-
+      `${filename}` は、 `pydantic-settings` ライブラリを使用して、環境変数や .env ファイルから設定値を読み込む仕組みを提供。
+  zk-mcp-file-models:
+    type: file
+    path: models.py
+    description: >-
+      `${filename}` は、 クライアント間でやり取りされるデータの構造を定義。
