@@ -21,3 +21,8 @@ class GetLinkingNotePathsResponse(BaseModel):
 
 class GetTags(BaseModel):
     tags: list[str]
+
+
+class CreateNoteResponse(BaseModel):
+    path: Path
+    title: str

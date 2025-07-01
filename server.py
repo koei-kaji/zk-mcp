@@ -1,10 +1,17 @@
+import os.path
 import subprocess
 from pathlib import Path
 from typing import Literal
 
 from mcp.server.fastmcp import FastMCP
 
-from models import GetLinkingNotePathsResponse, GetNotePathsResponse, GetTags, Note
+from models import (
+    CreateNoteResponse,
+    GetLinkingNotePathsResponse,
+    GetNotePathsResponse,
+    GetTags,
+    Note,
+)
 from settings import Settings
 
 mcp = FastMCP("Zk")
@@ -189,6 +196,44 @@ def get_note(path: str) -> str:
         raise RuntimeError(f"ノートが見つかりません: {path}")
     except IOError as e:
         raise RuntimeError(f"ノートの読み込みエラー: {path}") from e
+
+
+@mcp.tool()
+def create_note(title: str, directory: str = "") -> str:
+    """指定されたタイトルで新しいノートを作成する。
+
+    Args:
+        title (str): 作成するノートのタイトル
+        directory (str): ノートを作成するディレクトリ（オプション）
+
+    Returns:
+        str: 作成されたノートのパス情報を含むJSON文字列
+    """
+
+    command = ["zk", "new", "--print-path", "--title", title]
+
+    if directory:
+        command.extend([directory])
+
+    try:
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            cwd=str(settings.zk_dir),
+            check=True,
+        )
+
+        # 作成されたファイルパスを取得
+        created_path = result.stdout.strip()
+
+        # ZK_DIRからの相対パスに変換
+        relative_path = os.path.relpath(created_path, settings.zk_dir)
+
+        return CreateNoteResponse(path=relative_path, title=title).json()
+
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"ノート作成エラー: {e.stderr}") from e
 
 
 if __name__ == "__main__":
