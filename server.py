@@ -18,6 +18,40 @@ mcp = FastMCP("Zk")
 settings = Settings()  # type: ignore[call-arg]
 
 
+def _validate_path(path: str) -> Path:
+    """パスの安全性を検証し、ディレクトリトラバーサル攻撃を防ぐ。
+    
+    Args:
+        path: 検証するパス文字列
+        
+    Returns:
+        Path: 検証済みの安全なパス
+        
+    Raises:
+        ValueError: パスが安全でない場合
+    """
+    # 空文字列チェック
+    if not path or not path.strip():
+        raise ValueError("パスが空です")
+    
+    # パス長制限
+    if len(path) > 1000:
+        raise ValueError("パスが長すぎます")
+    
+    # 相対パスに変換
+    normalized_path = Path(path).resolve()
+    zk_dir_resolved = settings.zk_dir.resolve()
+    
+    # zkディレクトリ内のパスかチェック
+    try:
+        normalized_path.relative_to(zk_dir_resolved)
+    except ValueError:
+        raise ValueError("指定されたパスはzkディレクトリ外です")
+    
+    # 実際のファイルパスを返す
+    return settings.zk_dir / path
+
+
 def _get_notes(cmd_args: list[str]) -> list[Note]:
     """zkコマンドを実行してノート一覧を取得する。
 
@@ -142,15 +176,21 @@ def get_linking_notes(path: str) -> str:
         str: リンク情報を含むJSON文字列。3つの異なるリンクタイプ（link_to_notes, linked_by_notes, related_notes）
             のノートリストが含まれる。
     """
-    link_to_notes = _get_notes(["--link-to", path])
-    linked_by_notes = _get_notes(["--linked-by", path])
-    related_notes = _get_notes(["--related", path])
+    try:
+        # パスの安全性を検証
+        _validate_path(path)
+        
+        link_to_notes = _get_notes(["--link-to", path])
+        linked_by_notes = _get_notes(["--linked-by", path])
+        related_notes = _get_notes(["--related", path])
 
-    return GetLinkingNotePathsResponse(
-        link_to_notes=link_to_notes,
-        linked_by_notes=linked_by_notes,
-        related_notes=related_notes,
-    ).json()
+        return GetLinkingNotePathsResponse(
+            link_to_notes=link_to_notes,
+            linked_by_notes=linked_by_notes,
+            related_notes=related_notes,
+        ).json()
+    except ValueError as e:
+        raise RuntimeError(f"無効なパス: {e}") from e
 
 
 @mcp.tool()
@@ -186,12 +226,15 @@ def get_note(path: str) -> str:
     Returns:
         str: ノートのコンテンツ
     """
-    note_path = settings.zk_dir / path
-
     try:
+        # パスの安全性を検証
+        note_path = _validate_path(path)
+        
         with open(note_path, "r", encoding="utf-8") as f:
             contents = f.read()
         return contents
+    except ValueError as e:
+        raise RuntimeError(f"無効なパス: {e}") from e
     except FileNotFoundError:
         raise RuntimeError(f"ノートが見つかりません: {path}")
     except IOError as e:
@@ -230,7 +273,7 @@ def create_note(title: str, directory: str = "") -> str:
         # ZK_DIRからの相対パスに変換
         relative_path = os.path.relpath(created_path, settings.zk_dir)
 
-        return CreateNoteResponse(path=relative_path, title=title).json()
+        return CreateNoteResponse(path=Path(relative_path), title=title).json()
 
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"ノート作成エラー: {e.stderr}") from e
