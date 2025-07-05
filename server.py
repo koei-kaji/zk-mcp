@@ -52,6 +52,70 @@ def _validate_path(path: str) -> Path:
     return settings.zk_dir / path
 
 
+def _validate_directory(directory: str) -> str:
+    """ディレクトリ名の安全性を検証し、コマンドインジェクション攻撃を防ぐ。
+    
+    Args:
+        directory: 検証するディレクトリ名
+        
+    Returns:
+        str: 検証済みの安全なディレクトリ名
+        
+    Raises:
+        ValueError: ディレクトリ名が安全でない場合
+    """
+    # 空文字列の場合は許可
+    if not directory:
+        return directory
+    
+    # ディレクトリ名の長さ制限
+    if len(directory) > 200:
+        raise ValueError("ディレクトリ名が長すぎます")
+    
+    # 危険な文字をチェック
+    dangerous_chars = [';', '&', '|', '`', '$', '(', ')', '{', '}', '[', ']', '>', '<', '!', '~', '*', '?', '"', "'", '\\']
+    for char in dangerous_chars:
+        if char in directory:
+            raise ValueError(f"ディレクトリ名に危険な文字が含まれています: {char}")
+    
+    # パストラバーサル防止
+    if '..' in directory or directory.startswith('/'):
+        raise ValueError("ディレクトリ名にパストラバーサルが検出されました")
+    
+    # 制御文字チェック
+    if any(ord(char) < 32 for char in directory):
+        raise ValueError("ディレクトリ名に制御文字が含まれています")
+    
+    return directory
+
+
+def _validate_title(title: str) -> str:
+    """タイトルの安全性を検証し、コマンドインジェクション攻撃を防ぐ。
+    
+    Args:
+        title: 検証するタイトル
+        
+    Returns:
+        str: 検証済みの安全なタイトル
+        
+    Raises:
+        ValueError: タイトルが安全でない場合
+    """
+    # 空文字列チェック
+    if not title or not title.strip():
+        raise ValueError("タイトルが空です")
+    
+    # タイトルの長さ制限
+    if len(title) > 500:
+        raise ValueError("タイトルが長すぎます")
+    
+    # 制御文字チェック
+    if any(ord(char) < 32 for char in title if char not in ['\t', '\n', '\r']):
+        raise ValueError("タイトルに制御文字が含まれています")
+    
+    return title
+
+
 def _get_notes(cmd_args: list[str]) -> list[Note]:
     """zkコマンドを実行してノート一覧を取得する。
 
@@ -252,13 +316,16 @@ def create_note(title: str, directory: str = "") -> str:
     Returns:
         str: 作成されたノートのパス情報を含むJSON文字列
     """
-
-    command = ["zk", "new", "--print-path", "--title", title]
-
-    if directory:
-        command.extend([directory])
-
     try:
+        # 入力値の検証
+        validated_title = _validate_title(title)
+        validated_directory = _validate_directory(directory)
+
+        command = ["zk", "new", "--print-path", "--title", validated_title]
+
+        if validated_directory:
+            command.extend([validated_directory])
+
         result = subprocess.run(
             command,
             capture_output=True,
@@ -273,8 +340,10 @@ def create_note(title: str, directory: str = "") -> str:
         # ZK_DIRからの相対パスに変換
         relative_path = os.path.relpath(created_path, settings.zk_dir)
 
-        return CreateNoteResponse(path=Path(relative_path), title=title).json()
+        return CreateNoteResponse(path=Path(relative_path), title=validated_title).json()
 
+    except ValueError as e:
+        raise RuntimeError(f"入力値エラー: {e}") from e
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"ノート作成エラー: {e.stderr}") from e
 
