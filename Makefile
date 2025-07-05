@@ -12,5 +12,9 @@ lint:
 	@uv run ruff check .
 	@uv run mypy --show-error-codes .
 
+.PHONY: test
+test:
+	@uv run pytest
+
 .PHONY: pre-commit
-pre-commit: format lint
+pre-commit: format lint test
