@@ -57,4 +57,4 @@ def get_note_paths(
 
     notes = get_notes(cwd, additional_args)
 
-    return GetNotePathsResponse(notes=notes).json()
+    return GetNotePathsResponse(notes=notes).model_dump_json()

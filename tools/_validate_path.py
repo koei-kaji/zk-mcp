@@ -22,7 +22,7 @@ def _validate_path(path: str, base_dir: Path) -> Path:
         raise ValueError("パスが長すぎます")
 
     # 相対パスに変換
-    normalized_path = Path(path).resolve()
+    normalized_path = (base_dir / path).resolve()
     zk_dir_resolved = base_dir.resolve()
 
     # zkディレクトリ内のパスかチェック

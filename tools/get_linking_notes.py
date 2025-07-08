@@ -32,6 +32,6 @@ def get_linking_notes(cwd: Path, path: str) -> str:
             link_to_notes=link_to_notes,
             linked_by_notes=linked_by_notes,
             related_notes=related_notes,
-        ).json()
+        ).model_dump_json()
     except ValueError as e:
         raise RuntimeError(f"無効なパス: {e}") from e

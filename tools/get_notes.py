@@ -40,14 +40,26 @@ def get_notes(cwd: Path, cmd_args: list[str]) -> list[Note]:
 
         notes: list[Note] = []
         for line in results:
-            parts = line.split("|", 2)  # (path, title, tags)
+            # パイプ文字を含むタイトルに対応するため、逆方向から分割
+            # 最後のパイプでtagsを、最初のパイプでpathを分離
+            last_pipe_idx = line.rfind("|")
+            if last_pipe_idx == -1:
+                continue  # パイプが見つからない場合はスキップ
 
-            path = parts[0]
-            title = parts[1]
-            if parts[2] == "":
+            tags_part = line[last_pipe_idx + 1 :]
+            remaining = line[:last_pipe_idx]
+
+            first_pipe_idx = remaining.find("|")
+            if first_pipe_idx == -1:
+                continue  # パイプが見つからない場合はスキップ
+
+            path = remaining[:first_pipe_idx]
+            title = remaining[first_pipe_idx + 1 :]
+
+            if tags_part == "":
                 tags = []
             else:
-                tags = parts[2].split(",")
+                tags = tags_part.split(",")
 
             note = Note(path=Path(path), title=title, tags=tags)
             notes.append(note)

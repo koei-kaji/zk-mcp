@@ -33,5 +33,7 @@ def get_note(cwd: Path, path: str) -> str:
             check=True,
         )
         return stdout.stdout
+    except ValueError as e:
+        raise RuntimeError(f"zkコマンド実行エラー： {e}") from e
     except subprocess.CalledProcessError as e:
         raise RuntimeError(f"zkコマンド実行エラー： {e.stderr}") from e

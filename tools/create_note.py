@@ -43,7 +43,7 @@ def create_note(cwd: Path, title: str, directory: str = "") -> str:
 
         return CreateNoteResponse(
             path=Path(relative_path), title=validated_title
-        ).json()
+        ).model_dump_json()
 
     except ValueError as e:
         raise RuntimeError(f"入力値エラー: {e}") from e
