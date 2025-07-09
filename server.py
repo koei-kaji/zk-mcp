@@ -18,18 +18,18 @@ def get_note_paths(
     include_tags_operand: Literal["AND", "OR"] = "AND",
     exclude_tags: list[str] = [],
 ) -> str:
-    """zk CLI を使用してフィルタ条件に一致するノートのパス一覧を取得する。
+    """Get a list of note paths that match the filter criteria using zk CLI.
 
     Args:
-        include_str (list[str]): コンテンツまたはファイル名に含まれる文字列でノートを絞り込む
-        include_str_operand (Literal['AND', 'OR']): 複数のinclude_strフィルタに適用する論理演算子（'AND'または'OR'）
-        exclude_str (list[str]): コンテンツまたはファイル名にこれらの文字列を含むノートを除外する
-        include_tags (list[str]): 指定したタグを持つノートに絞り込む
-        include_tags_operand (Literal['AND', 'OR']): 複数のinclude_tagsに適用する論理演算子（'AND'または'OR'）
-        exclude_tags (list[str]): 指定したタグを持つノートを除外する
+        include_str (list[str]): Filter notes by strings contained in content or filename
+        include_str_operand (Literal['AND', 'OR']): Logical operator applied to multiple include_str filters ('AND' or 'OR')
+        exclude_str (list[str]): Exclude notes containing these strings in content or filename
+        include_tags (list[str]): Filter to notes with specified tags
+        include_tags_operand (Literal['AND', 'OR']): Logical operator applied to multiple include_tags ('AND' or 'OR')
+        exclude_tags (list[str]): Exclude notes with specified tags
 
     Returns:
-        str: フィルタ条件に一致するノートのファイルパスとタイトル情報リストを含むJSON文字列。
+        str: JSON string containing a list of note file paths and title information matching the filter criteria.
     """
 
     return tools.get_note_paths(
@@ -45,19 +45,19 @@ def get_note_paths(
 
 @mcp.tool()
 def get_linking_notes(path: str) -> str:
-    """指定されたノートに関連するすべてのリンク情報を取得する。
+    """Get all linking information related to the specified note.
 
-    このツールは、特定のノートパスに対して以下の3種類のリンク関係を持つノートを検索する：
-    1. 指定されたノートからリンクしているノート（link_to）
-    2. 指定されたノートにリンクしているノート（linked_by）
-    3. 指定されたノートに関連するノート（related）
+    This tool searches for notes with the following three types of link relationships to a specific note path:
+    1. Notes that the specified note links to (link_to)
+    2. Notes that link to the specified note (linked_by)
+    3. Notes that are related to the specified note (related)
 
     Args:
-        path (str): リンク情報を取得するノートファイルへのパス
+        path (str): Path to the note file to get linking information for
 
     Returns:
-        str: リンク情報を含むJSON文字列。3つの異なるリンクタイプ（link_to_notes, linked_by_notes, related_notes）
-            のノートリストが含まれる。
+        str: JSON string containing linking information. Includes note lists for three different link types
+            (link_to_notes, linked_by_notes, related_notes).
     """
     return tools.get_linking_notes(settings.zk_dir, path)
 
@@ -69,27 +69,27 @@ def get_tags() -> str:
 
 @mcp.tool()
 def get_note(path: str) -> str:
-    """指定されたパスのノートの内容を読み込んで返す。
+    """Read and return the contents of the note at the specified path.
 
     Args:
-        path (str): 読み込むノートファイルへのパス
+        path (str): Path to the note file to read
 
     Returns:
-        str: ノートのコンテンツ
+        str: The note content
     """
     return tools.get_note(settings.zk_dir, path)
 
 
 @mcp.tool()
 def create_note(title: str, directory: str = "") -> str:
-    """指定されたタイトルで新しいノートを作成する。
+    """Create a new note with the specified title.
 
     Args:
-        title (str): 作成するノートのタイトル
-        directory (str): ノートを作成するディレクトリ（オプション）
+        title (str): Title of the note to create
+        directory (str): Directory to create the note in (optional)
 
     Returns:
-        str: 作成されたノートのパス情報を含むJSON文字列
+        str: JSON string containing path information for the created note
     """
     return tools.create_note(settings.zk_dir, title, directory)
 
