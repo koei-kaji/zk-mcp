@@ -25,7 +25,7 @@
 ### コアコンポーネント
 
 1. **server.py** - FastMCPを使用したメインのMCPサーバー実装
-   - 4つのMCPツールを定義: `get_note_paths`, `get_linking_notes`, `get_tags`, `get_note`
+   - 5つのMCPツールを定義: `get_note_paths`, `get_linking_notes`, `get_tags`, `get_note`, `create_note`
    - `zk` CLIとのやり取りにsubprocessを使用
    - 全ツールはPydanticモデルを使用してJSONレスポンスを返す
 
@@ -44,6 +44,7 @@
 - `get_linking_notes(path)` - 特定のノートにリンクしている/されている/関連するすべてのノートを取得
 - `get_tags()` - ノートブック内の利用可能なタグをすべてリスト
 - `get_note(path)` - 特定のノートの完全なコンテンツを読み取り
+- `create_note(title, directory)` - 新しいノートを作成
 
 ### 依存関係
 
@@ -62,3 +63,10 @@
 - リントとフォーマットにruffを使用
 - mypyで型ヒントを強制
 - ドキュメント用にserver.pyに日本語コメント
+
+## テストスタイル
+
+- テストメソッド名は英語で記述
+- pytest.mark.parametrizeを積極的に使用
+- parametrizeのパターンは `pytest.param(..., id="AAAである場合、BBBであること")` の形式で日本語説明を付与
+- parametrizeを使用していないテストメソッドには日本語のdocstringを追加してテスト内容を説明
