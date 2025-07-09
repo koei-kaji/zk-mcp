@@ -48,9 +48,9 @@ def get_linking_notes(path: str) -> str:
     """Get all linking information related to the specified note.
 
     This tool searches for notes with the following three types of link relationships to a specific note path:
-    1. Notes that the specified note links to (link_to)
-    2. Notes that link to the specified note (linked_by)
-    3. Notes that are related to the specified note (related)
+    - Notes that the specified note links to (link_to)
+    - Notes that link to the specified note (linked_by)
+    - Notes that are related to the specified note (related)
 
     Args:
         path (str): Path to the note file to get linking information for
