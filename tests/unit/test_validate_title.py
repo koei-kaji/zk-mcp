@@ -1,12 +1,12 @@
 import pytest
 
-from tools._validate_title import _validate_title
+from src.zk_mcp.tools._validate_title import _validate_title
 
 
 class TestValidateTitle:
     """_validate_title 関数のテスト"""
 
-    def test_returns_title_when_valid_title_is_given(self):
+    def test_returns_title_when_valid_title_is_given(self) -> None:
         """正常なタイトルが与えられた場合、タイトルが返されること"""
         # Given
         title = "正常なタイトル"
@@ -41,8 +41,8 @@ class TestValidateTitle:
         ],
     )
     def test_raises_value_error_when_invalid_title_is_given(
-        self, title, expected_error
-    ):
+        self, title: str, expected_error: str
+    ) -> None:
         # When, Then
         with pytest.raises(ValueError, match=expected_error):
             _validate_title(title)
@@ -57,7 +57,9 @@ class TestValidateTitle:
             ),
         ],
     )
-    def test_returns_title_when_valid_title_is_given_with_edge_cases(self, title):
+    def test_returns_title_when_valid_title_is_given_with_edge_cases(
+        self, title: str
+    ) -> None:
         # When
         result = _validate_title(title)
 
@@ -157,8 +159,8 @@ class TestValidateTitle:
         ],
     )
     def test_raises_value_error_when_title_contains_control_characters(
-        self, control_char
-    ):
+        self, control_char: str
+    ) -> None:
         # Given
         title = f"タイトル{control_char}制御文字"
 
@@ -210,7 +212,9 @@ class TestValidateTitle:
             ),
         ],
     )
-    def test_returns_title_when_various_valid_titles_are_given(self, valid_title):
+    def test_returns_title_when_various_valid_titles_are_given(
+        self, valid_title: str
+    ) -> None:
         # Given, When
         result = _validate_title(valid_title)
 
@@ -230,7 +234,7 @@ class TestValidateTitle:
             ),
         ],
     )
-    def test_returns_title_when_other_valid_titles_are_given(self, title):
+    def test_returns_title_when_other_valid_titles_are_given(self, title: str) -> None:
         # When
         result = _validate_title(title)
 

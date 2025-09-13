@@ -21,6 +21,6 @@ def get_tags(cwd: Path) -> str:
         for line in results:
             tags.append(line)
     except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"zkコマンド実行エラー： {e.stderr}") from e
+        raise RuntimeError(f"zkコマンド実行エラー: {e.stderr}") from e
 
     return GetTags(tags=tags).model_dump_json()

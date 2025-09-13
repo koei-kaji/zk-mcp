@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from tools._validate_path import _validate_path
+from src.zk_mcp.tools._validate_path import _validate_path
 
 
 class TestValidatePath:
@@ -19,7 +19,7 @@ class TestValidatePath:
             ),
         ],
     )
-    def test_returns_path_when_valid_path_is_given(self, path):
+    def test_returns_path_when_valid_path_is_given(self, path: str) -> None:
         # Given
         import tempfile
 
@@ -68,7 +68,9 @@ class TestValidatePath:
             ),
         ],
     )
-    def test_raises_value_error_when_invalid_path_is_given(self, path, expected_error):
+    def test_raises_value_error_when_invalid_path_is_given(
+        self, path: str, expected_error: str
+    ) -> None:
         # Given
         import tempfile
 
@@ -100,7 +102,9 @@ class TestValidatePath:
             ),
         ],
     )
-    def test_raises_value_error_when_dangerous_path_is_given(self, dangerous_path):
+    def test_raises_value_error_when_dangerous_path_is_given(
+        self, dangerous_path: str
+    ) -> None:
         # Given
         import tempfile
 
@@ -144,7 +148,9 @@ class TestValidatePath:
             ),
         ],
     )
-    def test_returns_path_when_various_valid_paths_are_given(self, valid_path):
+    def test_returns_path_when_various_valid_paths_are_given(
+        self, valid_path: str
+    ) -> None:
         # Given
         import tempfile
 
@@ -166,7 +172,7 @@ class TestValidatePath:
             ),
         ],
     )
-    def test_returns_path_when_other_valid_paths_are_given(self, path):
+    def test_returns_path_when_other_valid_paths_are_given(self, path: str) -> None:
         # Given
         import tempfile
 

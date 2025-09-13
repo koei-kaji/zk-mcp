@@ -1,6 +1,6 @@
 .PHONY: run
 run:
-	@ZK_DIR=. uv run mcp dev server.py
+	@ZK_DIR=. uv run mcp dev src/zk_mcp/server.py
 
 .PHONY: format
 format:

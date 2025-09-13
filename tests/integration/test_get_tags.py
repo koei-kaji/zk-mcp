@@ -5,13 +5,13 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from tools.get_tags import get_tags
+from src.zk_mcp.tools.get_tags import get_tags
 
 
 class TestGetTags:
     """get_tags 関数のテスト"""
 
-    def test_returns_tag_list_when_zk_command_succeeds(self):
+    def test_returns_tag_list_when_zk_command_succeeds(self) -> None:
         """zkコマンドが成功した場合、タグリストが返されること"""
         # Given
         cwd = Path("/test/dir")
@@ -53,8 +53,8 @@ class TestGetTags:
         ],
     )
     def test_returns_empty_tag_list_when_zk_command_returns_empty_result(
-        self, mock_stdout, expected_tags
-    ):
+        self, mock_stdout: str, expected_tags: list[str]
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
 
@@ -91,7 +91,9 @@ class TestGetTags:
             ),
         ],
     )
-    def test_raises_runtime_error_when_zk_command_fails(self, error_message):
+    def test_raises_runtime_error_when_zk_command_fails(
+        self, error_message: str
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
 
@@ -101,7 +103,7 @@ class TestGetTags:
         # When, Then
         with patch("subprocess.run", side_effect=mock_error):
             with pytest.raises(
-                RuntimeError, match=f"zkコマンド実行エラー： {error_message}"
+                RuntimeError, match=f"zkコマンド実行エラー: {error_message}"
             ):
                 get_tags(cwd)
 
@@ -130,7 +132,9 @@ class TestGetTags:
             ),
         ],
     )
-    def test_processes_multiple_tags_correctly(self, mock_stdout, expected_tags):
+    def test_processes_multiple_tags_correctly(
+        self, mock_stdout: str, expected_tags: list[str]
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
 
@@ -182,8 +186,8 @@ class TestGetTags:
         ],
     )
     def test_processes_tags_with_special_characters_correctly(
-        self, mock_stdout, expected_tags
-    ):
+        self, mock_stdout: str, expected_tags: list[str]
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
 
@@ -224,8 +228,8 @@ class TestGetTags:
         ],
     )
     def test_processes_tags_with_unicode_characters_correctly(
-        self, mock_stdout, expected_tags
-    ):
+        self, mock_stdout: str, expected_tags: list[str]
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
 
@@ -266,7 +270,9 @@ class TestGetTags:
             ),
         ],
     )
-    def test_handles_newlines_correctly(self, mock_stdout, expected_tags):
+    def test_handles_newlines_correctly(
+        self, mock_stdout: str, expected_tags: list[str]
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
 
@@ -302,7 +308,9 @@ class TestGetTags:
             ),
         ],
     )
-    def test_handles_empty_lines_correctly(self, mock_stdout, expected_tags):
+    def test_handles_empty_lines_correctly(
+        self, mock_stdout: str, expected_tags: list[str]
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
 
@@ -340,7 +348,7 @@ class TestGetTags:
             ),
         ],
     )
-    def test_processes_various_cwd_paths_correctly(self, cwd):
+    def test_processes_various_cwd_paths_correctly(self, cwd: Path) -> None:
         # Given
         mock_stdout = "tag1\ntag2\n"
 
@@ -356,7 +364,7 @@ class TestGetTags:
         result_data = json.loads(result)
         assert result_data["tags"] == ["tag1", "tag2"]
 
-    def test_serializes_json_correctly(self):
+    def test_serializes_json_correctly(self) -> None:
         """JSONシリアライズが正しく実行されること"""
         # Given
         cwd = Path("/test/dir")
@@ -377,7 +385,7 @@ class TestGetTags:
         assert isinstance(result_data["tags"], list)
         assert result_data["tags"] == ["tag1", "tag2"]
 
-    def test_sets_zk_command_format_correctly(self):
+    def test_sets_zk_command_format_correctly(self) -> None:
         """zkコマンドのフォーマットが正しく設定されること"""
         # Given
         cwd = Path("/test/dir")
@@ -411,7 +419,7 @@ class TestGetTags:
             pytest.param("{{name}}", id="nameフォーマットが正しく設定されること"),
         ],
     )
-    def test_sets_individual_command_parts_correctly(self, command_part):
+    def test_sets_individual_command_parts_correctly(self, command_part: str) -> None:
         # Given
         cwd = Path("/test/dir")
         mock_stdout = "tag1\n"
@@ -439,8 +447,8 @@ class TestGetTags:
         ],
     )
     def test_calls_subprocess_with_correct_parameters(
-        self, subprocess_param, expected_value
-    ):
+        self, subprocess_param: str, expected_value: bool
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         mock_stdout = "tag1\n"

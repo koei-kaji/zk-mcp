@@ -4,14 +4,14 @@ from unittest.mock import patch
 
 import pytest
 
-from tools.get_linking_notes import get_linking_notes
-from tools.models import Note
+from src.zk_mcp.tools.get_linking_notes import get_linking_notes
+from src.zk_mcp.tools.models import Note
 
 
 class TestGetLinkingNotes:
     """get_linking_notes 関数のテスト"""
 
-    def test_returns_linking_notes_when_valid_path_is_given(self):
+    def test_returns_linking_notes_when_valid_path_is_given(self) -> None:
         """正常なパスが与えられた場合、リンクノート情報が返されること"""
         # Given
         cwd = Path("/test/dir")
@@ -23,8 +23,8 @@ class TestGetLinkingNotes:
 
         # When
         with (
-            patch("tools.get_linking_notes._validate_path") as mock_validate,
-            patch("tools.get_linking_notes.get_notes") as mock_get_notes,
+            patch("src.zk_mcp.tools.get_linking_notes._validate_path") as mock_validate,
+            patch("src.zk_mcp.tools.get_linking_notes.get_notes") as mock_get_notes,
         ):
             mock_validate.return_value = cwd / path
             mock_get_notes.side_effect = [link_to_notes, linked_by_notes, related_notes]
@@ -69,19 +69,20 @@ class TestGetLinkingNotes:
         ],
     )
     def test_raises_runtime_error_when_path_validation_fails(
-        self, path, validation_error
-    ):
+        self, path: str, validation_error: ValueError
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
 
         # When, Then
         with patch(
-            "tools.get_linking_notes._validate_path", side_effect=validation_error
+            "src.zk_mcp.tools.get_linking_notes._validate_path",
+            side_effect=validation_error,
         ):
             with pytest.raises(RuntimeError, match=f"無効なパス: {validation_error}"):
                 get_linking_notes(cwd, path)
 
-    def test_executes_three_zk_commands_correctly(self):
+    def test_executes_three_zk_commands_correctly(self) -> None:
         """3つのzkコマンドが正しく実行されること"""
         # Given
         cwd = Path("/test/dir")
@@ -91,8 +92,8 @@ class TestGetLinkingNotes:
 
         # When
         with (
-            patch("tools.get_linking_notes._validate_path") as mock_validate,
-            patch("tools.get_linking_notes.get_notes") as mock_get_notes,
+            patch("src.zk_mcp.tools.get_linking_notes._validate_path") as mock_validate,
+            patch("src.zk_mcp.tools.get_linking_notes.get_notes") as mock_get_notes,
         ):
             mock_validate.return_value = cwd / path
             mock_get_notes.return_value = mock_notes
@@ -109,7 +110,7 @@ class TestGetLinkingNotes:
         for i, expected_call in enumerate(expected_calls):
             assert mock_get_notes.call_args_list[i].args == expected_call[0]
 
-    def test_sets_empty_lists_when_no_linking_notes_found(self):
+    def test_sets_empty_lists_when_no_linking_notes_found(self) -> None:
         """空のリンクノートが返された場合、空のリストが設定されること"""
         # Given
         cwd = Path("/test/dir")
@@ -118,8 +119,8 @@ class TestGetLinkingNotes:
 
         # When
         with (
-            patch("tools.get_linking_notes._validate_path") as mock_validate,
-            patch("tools.get_linking_notes.get_notes") as mock_get_notes,
+            patch("src.zk_mcp.tools.get_linking_notes._validate_path") as mock_validate,
+            patch("src.zk_mcp.tools.get_linking_notes.get_notes") as mock_get_notes,
         ):
             mock_validate.return_value = cwd / path
             mock_get_notes.return_value = empty_notes
@@ -159,8 +160,8 @@ class TestGetLinkingNotes:
         ],
     )
     def test_sets_all_notes_when_multiple_linking_notes_found(
-        self, link_to_count, linked_by_count, related_count
-    ):
+        self, link_to_count: int, linked_by_count: int, related_count: int
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         path = "note1.md"
@@ -182,8 +183,8 @@ class TestGetLinkingNotes:
 
         # When
         with (
-            patch("tools.get_linking_notes._validate_path") as mock_validate,
-            patch("tools.get_linking_notes.get_notes") as mock_get_notes,
+            patch("src.zk_mcp.tools.get_linking_notes._validate_path") as mock_validate,
+            patch("src.zk_mcp.tools.get_linking_notes.get_notes") as mock_get_notes,
         ):
             mock_validate.return_value = cwd / path
             mock_get_notes.side_effect = [link_to_notes, linked_by_notes, related_notes]
@@ -227,15 +228,15 @@ class TestGetLinkingNotes:
             ),
         ],
     )
-    def test_processes_various_path_patterns_correctly(self, path):
+    def test_processes_various_path_patterns_correctly(self, path: str) -> None:
         # Given
         cwd = Path("/test/dir")
         mock_notes = [Note(path=Path("test.md"), title="Test", tags=[])]
 
         # When
         with (
-            patch("tools.get_linking_notes._validate_path") as mock_validate,
-            patch("tools.get_linking_notes.get_notes") as mock_get_notes,
+            patch("src.zk_mcp.tools.get_linking_notes._validate_path") as mock_validate,
+            patch("src.zk_mcp.tools.get_linking_notes.get_notes") as mock_get_notes,
         ):
             mock_validate.return_value = cwd / path
             mock_get_notes.return_value = mock_notes
@@ -250,7 +251,7 @@ class TestGetLinkingNotes:
         assert "linked_by_notes" in result_data
         assert "related_notes" in result_data
 
-    def test_serializes_json_correctly(self):
+    def test_serializes_json_correctly(self) -> None:
         """JSONシリアライズが正しく実行されること"""
         # Given
         cwd = Path("/test/dir")
@@ -264,8 +265,8 @@ class TestGetLinkingNotes:
 
         # When
         with (
-            patch("tools.get_linking_notes._validate_path") as mock_validate,
-            patch("tools.get_linking_notes.get_notes") as mock_get_notes,
+            patch("src.zk_mcp.tools.get_linking_notes._validate_path") as mock_validate,
+            patch("src.zk_mcp.tools.get_linking_notes.get_notes") as mock_get_notes,
         ):
             mock_validate.return_value = cwd / path
             mock_get_notes.side_effect = [link_to_notes, linked_by_notes, related_notes]
@@ -282,7 +283,7 @@ class TestGetLinkingNotes:
         assert result_data["linked_by_notes"][0]["tags"] == ["tag2"]
         assert result_data["related_notes"][0]["tags"] == []
 
-    def test_validates_path_correctly(self):
+    def test_validates_path_correctly(self) -> None:
         """パス検証が正しく実行されること"""
         # Given
         cwd = Path("/test/dir")
@@ -291,8 +292,8 @@ class TestGetLinkingNotes:
 
         # When
         with (
-            patch("tools.get_linking_notes._validate_path") as mock_validate,
-            patch("tools.get_linking_notes.get_notes") as mock_get_notes,
+            patch("src.zk_mcp.tools.get_linking_notes._validate_path") as mock_validate,
+            patch("src.zk_mcp.tools.get_linking_notes.get_notes") as mock_get_notes,
         ):
             mock_validate.return_value = cwd / path
             mock_get_notes.return_value = mock_notes
@@ -311,7 +312,7 @@ class TestGetLinkingNotes:
             ),
         ],
     )
-    def test_sets_link_types_correctly(self, expected_keys):
+    def test_sets_link_types_correctly(self, expected_keys: list[str]) -> None:
         # Given
         cwd = Path("/test/dir")
         path = "note1.md"
@@ -322,8 +323,8 @@ class TestGetLinkingNotes:
 
         # When
         with (
-            patch("tools.get_linking_notes._validate_path") as mock_validate,
-            patch("tools.get_linking_notes.get_notes") as mock_get_notes,
+            patch("src.zk_mcp.tools.get_linking_notes._validate_path") as mock_validate,
+            patch("src.zk_mcp.tools.get_linking_notes.get_notes") as mock_get_notes,
         ):
             mock_validate.return_value = cwd / path
             mock_get_notes.side_effect = [link_to_notes, linked_by_notes, related_notes]
@@ -345,7 +346,7 @@ class TestGetLinkingNotes:
             pytest.param("--related", id="relatedオプションが正しく設定されること"),
         ],
     )
-    def test_sets_zk_command_options_correctly(self, command_option):
+    def test_sets_zk_command_options_correctly(self, command_option: str) -> None:
         # Given
         cwd = Path("/test/dir")
         path = "note1.md"
@@ -353,8 +354,8 @@ class TestGetLinkingNotes:
 
         # When
         with (
-            patch("tools.get_linking_notes._validate_path") as mock_validate,
-            patch("tools.get_linking_notes.get_notes") as mock_get_notes,
+            patch("src.zk_mcp.tools.get_linking_notes._validate_path") as mock_validate,
+            patch("src.zk_mcp.tools.get_linking_notes.get_notes") as mock_get_notes,
         ):
             mock_validate.return_value = cwd / path
             mock_get_notes.return_value = mock_notes

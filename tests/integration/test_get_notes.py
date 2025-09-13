@@ -4,13 +4,13 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from tools.get_notes import get_notes
+from src.zk_mcp.tools.get_notes import get_notes
 
 
 class TestGetNotes:
     """get_notes 関数のテスト"""
 
-    def test_returns_note_list_when_zk_command_succeeds(self):
+    def test_returns_note_list_when_zk_command_succeeds(self) -> None:
         """zkコマンドが成功した場合、ノートリストが返されること"""
         # Given
         cwd = Path("/test/dir")
@@ -47,8 +47,8 @@ class TestGetNotes:
         ],
     )
     def test_returns_empty_list_when_zk_command_returns_empty_result(
-        self, mock_stdout, expected_length
-    ):
+        self, mock_stdout: str, expected_length: int
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         cmd_args: list[str] = []
@@ -85,7 +85,9 @@ class TestGetNotes:
             ),
         ],
     )
-    def test_raises_runtime_error_when_zk_command_fails(self, error_message):
+    def test_raises_runtime_error_when_zk_command_fails(
+        self, error_message: str
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         cmd_args: list[str] = ["--match", "test"]
@@ -96,7 +98,7 @@ class TestGetNotes:
         # When, Then
         with patch("subprocess.run", side_effect=mock_error):
             with pytest.raises(
-                RuntimeError, match=f"zkコマンド実行エラー： {error_message}"
+                RuntimeError, match=f"zkコマンド実行エラー: {error_message}"
             ):
                 get_notes(cwd, cmd_args)
 
@@ -125,7 +127,9 @@ class TestGetNotes:
             ),
         ],
     )
-    def test_processes_tags_correctly(self, mock_stdout, expected_tags):
+    def test_processes_tags_correctly(
+        self, mock_stdout: str, expected_tags: list[str]
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         cmd_args: list[str] = []
@@ -216,8 +220,8 @@ class TestGetNotes:
         ],
     )
     def test_executes_correct_zk_command_with_various_arguments(
-        self, cmd_args, expected_args
-    ):
+        self, cmd_args: list[str], expected_args: list[str]
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         mock_stdout = "note1.md|Note 1|tag1\n"
@@ -270,8 +274,8 @@ class TestGetNotes:
         ],
     )
     def test_processes_titles_with_special_characters_correctly(
-        self, mock_stdout, expected_title
-    ):
+        self, mock_stdout: str, expected_title: str
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         cmd_args: list[str] = []
@@ -305,13 +309,19 @@ class TestGetNotes:
                 id="3行の結果が正しく処理されること",
             ),
             pytest.param(
-                "note1.md|Note 1|tag1\nnote2.md|Note 2|tag2\nnote3.md|Note 3|\nnote4.md|Note 4|tag4\nnote5.md|Note 5|tag5\n",
+                (
+                    "note1.md|Note 1|tag1\nnote2.md|Note 2|tag2\n"
+                    "note3.md|Note 3|\nnote4.md|Note 4|tag4\n"
+                    "note5.md|Note 5|tag5\n"
+                ),
                 5,
                 id="多数行の結果が正しく処理されること",
             ),
         ],
     )
-    def test_processes_multiple_lines_correctly(self, mock_stdout, expected_count):
+    def test_processes_multiple_lines_correctly(
+        self, mock_stdout: str, expected_count: int
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         cmd_args: list[str] = []
@@ -358,8 +368,8 @@ class TestGetNotes:
         ],
     )
     def test_processes_paths_with_separators_correctly(
-        self, mock_stdout, expected_path
-    ):
+        self, mock_stdout: str, expected_path: Path
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         cmd_args: list[str] = []
@@ -397,7 +407,9 @@ class TestGetNotes:
             ),
         ],
     )
-    def test_calls_subprocess_with_correct_parameters(self, cmd_args):
+    def test_calls_subprocess_with_correct_parameters(
+        self, cmd_args: list[str]
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         mock_stdout = "note1.md|Note 1|tag1\n"

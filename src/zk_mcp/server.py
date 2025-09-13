@@ -2,8 +2,8 @@ from typing import Literal
 
 from mcp.server.fastmcp import FastMCP
 
-import tools
-from settings import Settings
+from . import tools
+from .settings import Settings
 
 mcp = FastMCP("Zk")
 settings = Settings()  # type: ignore[call-arg]
@@ -11,6 +11,7 @@ settings = Settings()  # type: ignore[call-arg]
 
 @mcp.tool()
 def get_note_paths(
+    path: str = "",
     include_str: list[str] = [],
     include_str_operand: Literal["AND", "OR"] = "AND",
     exclude_str: list[str] = [],
@@ -21,19 +22,25 @@ def get_note_paths(
     """Get a list of note paths that match the filter criteria using zk CLI.
 
     Args:
-        include_str (list[str]): Filter notes by strings contained in content or filename
-        include_str_operand (Literal['AND', 'OR']): Logical operator applied to multiple include_str filters ('AND' or 'OR')
-        exclude_str (list[str]): Exclude notes containing these strings in content or filename
+        include_str (list[str]): Filter notes by strings contained in content
+            or filename
+        include_str_operand (Literal['AND', 'OR']): Logical operator applied
+            to multiple include_str filters ('AND' or 'OR')
+        exclude_str (list[str]): Exclude notes containing these strings
+            in content or filename
         include_tags (list[str]): Filter to notes with specified tags
-        include_tags_operand (Literal['AND', 'OR']): Logical operator applied to multiple include_tags ('AND' or 'OR')
+        include_tags_operand (Literal['AND', 'OR']): Logical operator applied
+            to multiple include_tags ('AND' or 'OR')
         exclude_tags (list[str]): Exclude notes with specified tags
 
     Returns:
-        str: JSON string containing a list of note file paths and title information matching the filter criteria.
+        str: JSON string containing a list of note file paths and title
+            information matching the filter criteria.
     """
 
     return tools.get_note_paths(
         settings.zk_dir,
+        path if path != "" else None,
         include_str,
         include_str_operand,
         exclude_str,
@@ -47,7 +54,8 @@ def get_note_paths(
 def get_linking_notes(path: str) -> str:
     """Get all linking information related to the specified note.
 
-    This tool searches for notes with the following three types of link relationships to a specific note path:
+    This tool searches for notes with the following three types of link
+    relationships to a specific note path:
     - Notes that the specified note links to (link_to)
     - Notes that link to the specified note (linked_by)
     - Notes that are related to the specified note (related)
@@ -56,7 +64,8 @@ def get_linking_notes(path: str) -> str:
         path (str): Path to the note file to get linking information for
 
     Returns:
-        str: JSON string containing linking information. Includes note lists for three different link types
+        str: JSON string containing linking information. Includes note lists
+            for three different link types
             (link_to_notes, linked_by_notes, related_notes).
     """
     return tools.get_linking_notes(settings.zk_dir, path)
@@ -94,5 +103,10 @@ def create_note(title: str, directory: str = "") -> str:
     return tools.create_note(settings.zk_dir, title, directory)
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """MCPサーバーのメインエントリーポイント"""
     mcp.run(transport="stdio")
+
+
+if __name__ == "__main__":
+    main()

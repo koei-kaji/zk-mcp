@@ -5,7 +5,7 @@ from .models import Note
 
 
 def get_notes(cwd: Path, cmd_args: list[str]) -> list[Note]:
-    """zkコマンドを実行してノート一覧を取得する。
+    """zkコマンドを実行してファイル一覧を取得する。
 
     Args:
         cmd_args: zkコマンドに追加する引数のリスト
@@ -26,7 +26,8 @@ def get_notes(cwd: Path, cmd_args: list[str]) -> list[Note]:
         "50",
         "--format",
         '{{path}}|{{title}}|{{join tags ","}}',
-    ] + cmd_args
+        *cmd_args,
+    ]
 
     try:
         stdout = subprocess.run(
@@ -66,4 +67,4 @@ def get_notes(cwd: Path, cmd_args: list[str]) -> list[Note]:
 
         return notes
     except subprocess.CalledProcessError as e:
-        raise RuntimeError(f"zkコマンド実行エラー： {e.stderr}") from e
+        raise RuntimeError(f"zkコマンド実行エラー: {e.stderr}") from e

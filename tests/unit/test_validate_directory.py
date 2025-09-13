@@ -2,7 +2,7 @@ import re
 
 import pytest
 
-from tools._validate_directory import _validate_directory
+from src.zk_mcp.tools._validate_directory import _validate_directory
 
 
 class TestValidateDirectory:
@@ -17,7 +17,9 @@ class TestValidateDirectory:
             pytest.param("", id="空文字である場合、ディレクトリ名が返されること"),
         ],
     )
-    def test_returns_directory_name_when_valid_directory_is_given(self, directory):
+    def test_returns_directory_name_when_valid_directory_is_given(
+        self, directory: str
+    ) -> None:
         # When
         result = _validate_directory(directory)
 
@@ -50,8 +52,8 @@ class TestValidateDirectory:
         ],
     )
     def test_raises_value_error_when_invalid_directory_is_given(
-        self, directory, expected_error
-    ):
+        self, directory: str, expected_error: str
+    ) -> None:
         # When, Then
         with pytest.raises(ValueError, match=expected_error):
             _validate_directory(directory)
@@ -65,8 +67,8 @@ class TestValidateDirectory:
         ],
     )
     def test_returns_directory_name_when_boundary_value_directory_is_given(
-        self, directory
-    ):
+        self, directory: str
+    ) -> None:
         # When
         result = _validate_directory(directory)
 
@@ -133,15 +135,18 @@ class TestValidateDirectory:
         ],
     )
     def test_raises_value_error_when_dangerous_character_is_included(
-        self, dangerous_char
-    ):
+        self, dangerous_char: str
+    ) -> None:
         # Given
         directory = f"test{dangerous_char}dir"
 
         # When, Then
         with pytest.raises(
             ValueError,
-            match=f"ディレクトリ名に危険な文字が含まれています: {re.escape(dangerous_char)}",
+            match=(
+                f"ディレクトリ名に危険な文字が含まれています: "
+                f"{re.escape(dangerous_char)}"
+            ),
         ):
             _validate_directory(directory)
 
@@ -237,7 +242,9 @@ class TestValidateDirectory:
             ),
         ],
     )
-    def test_raises_value_error_when_control_character_is_included(self, control_char):
+    def test_raises_value_error_when_control_character_is_included(
+        self, control_char: str
+    ) -> None:
         # Given
         directory = f"test{control_char}dir"
 
@@ -284,8 +291,8 @@ class TestValidateDirectory:
         ],
     )
     def test_returns_directory_name_when_various_valid_directories_are_given(
-        self, valid_directory
-    ):
+        self, valid_directory: str
+    ) -> None:
         # Given, When
         result = _validate_directory(valid_directory)
 
@@ -319,8 +326,8 @@ class TestValidateDirectory:
         ],
     )
     def test_raises_value_error_when_path_traversal_pattern_is_given(
-        self, invalid_path
-    ):
+        self, invalid_path: str
+    ) -> None:
         # Given
         directory = invalid_path
 
@@ -344,8 +351,8 @@ class TestValidateDirectory:
         ],
     )
     def test_returns_directory_name_when_other_valid_directories_are_given(
-        self, directory
-    ):
+        self, directory: str
+    ) -> None:
         # When
         result = _validate_directory(directory)
 

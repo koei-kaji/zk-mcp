@@ -12,10 +12,10 @@ def create_note(cwd: Path, title: str, directory: str = "") -> str:
 
     Args:
         title (str): 作成するノートのタイトル
-        directory (str): ノートを作成するディレクトリ（オプション）
+        directory (str): ノートを作成するディレクトリ(オプション)
 
     Returns:
-        str: 作成されたノートのパス情報を含むJSON文字列
+        str: 作成されたファイルのパス情報を含むJSON文字列
     """
     try:
         # 入力値の検証

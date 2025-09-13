@@ -8,16 +8,17 @@ from .models import GetLinkingNotePathsResponse
 def get_linking_notes(cwd: Path, path: str) -> str:
     """指定されたノートに関連するすべてのリンク情報を取得する。
 
-    このツールは、特定のノートパスに対して以下の3種類のリンク関係を持つノートを検索する：
-    - 指定されたノートからリンクしているノート（link_to）
-    - 指定されたノートにリンクしているノート（linked_by）
-    - 指定されたノートに関連するノート（related）
+    このツールは、特定のファイルパスに対して以下の3種類のリンク関係を持つファイルを検索する:
+    - 指定されたノートからリンクしているノート(link_to)
+    - 指定されたノートにリンクしているノート(linked_by)
+    - 指定されたノートに関連するノート(related)
 
     Args:
         path (str): リンク情報を取得するノートファイルへのパス
 
     Returns:
-        str: リンク情報を含むJSON文字列。3つの異なるリンクタイプ（link_to_notes, linked_by_notes, related_notes）
+        str: リンク情報を含むJSON文字列。3つの異なるリンクタイプ
+            (link_to_notes, linked_by_notes, related_notes)
             のノートリストが含まれる。
     """
     try:

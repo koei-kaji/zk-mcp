@@ -4,13 +4,13 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from tools.get_note import get_note
+from src.zk_mcp.tools.get_note import get_note
 
 
 class TestGetNote:
     """get_note 関数のテスト"""
 
-    def test_returns_note_content_when_valid_path_is_given(self):
+    def test_returns_note_content_when_valid_path_is_given(self) -> None:
         """正常なパスが与えられた場合、ノートコンテンツが返されること"""
         # Given
         cwd = Path("/test/dir")
@@ -23,7 +23,7 @@ class TestGetNote:
 
         # When
         with (
-            patch("tools.get_note._validate_path") as mock_validate,
+            patch("src.zk_mcp.tools.get_note._validate_path") as mock_validate,
             patch("subprocess.run", return_value=mock_result) as mock_run,
         ):
             mock_validate.return_value = cwd / path
@@ -66,15 +66,17 @@ class TestGetNote:
         ],
     )
     def test_raises_runtime_error_when_path_validation_fails(
-        self, path, validation_error
-    ):
+        self, path: str, validation_error: ValueError
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
 
         # When, Then
-        with patch("tools.get_note._validate_path", side_effect=validation_error):
+        with patch(
+            "src.zk_mcp.tools.get_note._validate_path", side_effect=validation_error
+        ):
             with pytest.raises(
-                RuntimeError, match=f"zkコマンド実行エラー： {validation_error}"
+                RuntimeError, match=f"zkコマンド実行エラー: {validation_error}"
             ):
                 get_note(cwd, path)
 
@@ -99,7 +101,9 @@ class TestGetNote:
             ),
         ],
     )
-    def test_raises_runtime_error_when_zk_command_fails(self, error_message):
+    def test_raises_runtime_error_when_zk_command_fails(
+        self, error_message: str
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         path = "note1.md"
@@ -109,12 +113,12 @@ class TestGetNote:
 
         # When, Then
         with (
-            patch("tools.get_note._validate_path") as mock_validate,
+            patch("src.zk_mcp.tools.get_note._validate_path") as mock_validate,
             patch("subprocess.run", side_effect=mock_error),
         ):
             mock_validate.return_value = cwd / path
             with pytest.raises(
-                RuntimeError, match=f"zkコマンド実行エラー： {error_message}"
+                RuntimeError, match=f"zkコマンド実行エラー: {error_message}"
             ):
                 get_note(cwd, path)
 
@@ -137,8 +141,8 @@ class TestGetNote:
         ],
     )
     def test_returns_empty_string_when_empty_content_is_returned(
-        self, mock_content, expected_result
-    ):
+        self, mock_content: str, expected_result: str
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         path = "empty.md"
@@ -149,7 +153,7 @@ class TestGetNote:
 
         # When
         with (
-            patch("tools.get_note._validate_path") as mock_validate,
+            patch("src.zk_mcp.tools.get_note._validate_path") as mock_validate,
             patch("subprocess.run", return_value=mock_result),
         ):
             mock_validate.return_value = cwd / path
@@ -194,7 +198,7 @@ Some **bold** text and *italic* text.
 
 絵文字も含まれます: 📝 📖 📚
 """,
-                id="Unicode文字が含まれるノートコンテンツが正しく返されること",
+                id="Unicode文字が含まれるファイルコンテンツが正しく返されること",
             ),
             pytest.param(
                 """# Special Characters
@@ -210,7 +214,7 @@ This note contains special characters:
             ),
         ],
     )
-    def test_returns_multiline_content_correctly(self, mock_content):
+    def test_returns_multiline_content_correctly(self, mock_content: str) -> None:
         # Given
         cwd = Path("/test/dir")
         path = "multiline.md"
@@ -221,7 +225,7 @@ This note contains special characters:
 
         # When
         with (
-            patch("tools.get_note._validate_path") as mock_validate,
+            patch("src.zk_mcp.tools.get_note._validate_path") as mock_validate,
             patch("subprocess.run", return_value=mock_result),
         ):
             mock_validate.return_value = cwd / path
@@ -265,7 +269,7 @@ This note contains special characters:
             ),
         ],
     )
-    def test_processes_various_path_patterns_correctly(self, path):
+    def test_processes_various_path_patterns_correctly(self, path: str) -> None:
         # Given
         cwd = Path("/test/dir")
         mock_content = "Test content"
@@ -276,7 +280,7 @@ This note contains special characters:
 
         # When
         with (
-            patch("tools.get_note._validate_path") as mock_validate,
+            patch("src.zk_mcp.tools.get_note._validate_path") as mock_validate,
             patch("subprocess.run", return_value=mock_result) as mock_run,
         ):
             mock_validate.return_value = cwd / path
@@ -293,7 +297,7 @@ This note contains special characters:
             check=True,
         )
 
-    def test_sets_zk_command_arguments_correctly(self):
+    def test_sets_zk_command_arguments_correctly(self) -> None:
         """zkコマンドの引数が正しく設定されること"""
         # Given
         cwd = Path("/test/dir")
@@ -306,7 +310,7 @@ This note contains special characters:
 
         # When
         with (
-            patch("tools.get_note._validate_path") as mock_validate,
+            patch("src.zk_mcp.tools.get_note._validate_path") as mock_validate,
             patch("subprocess.run", return_value=mock_result) as mock_run,
         ):
             mock_validate.return_value = cwd / path
@@ -329,7 +333,7 @@ This note contains special characters:
             check=True,
         )
 
-    def test_validates_path_correctly(self):
+    def test_validates_path_correctly(self) -> None:
         """パス検証が正しく実行されること"""
         # Given
         cwd = Path("/test/dir")
@@ -342,7 +346,7 @@ This note contains special characters:
 
         # When
         with (
-            patch("tools.get_note._validate_path") as mock_validate,
+            patch("src.zk_mcp.tools.get_note._validate_path") as mock_validate,
             patch("subprocess.run", return_value=mock_result),
         ):
             mock_validate.return_value = cwd / path
@@ -377,8 +381,8 @@ This note contains special characters:
         ],
     )
     def test_handles_content_with_newlines_correctly(
-        self, mock_content, expected_result
-    ):
+        self, mock_content: str, expected_result: str
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         path = "trailing-newline.md"
@@ -389,7 +393,7 @@ This note contains special characters:
 
         # When
         with (
-            patch("tools.get_note._validate_path") as mock_validate,
+            patch("src.zk_mcp.tools.get_note._validate_path") as mock_validate,
             patch("subprocess.run", return_value=mock_result),
         ):
             mock_validate.return_value = cwd / path
@@ -410,7 +414,7 @@ This note contains special characters:
             ),
         ],
     )
-    def test_sets_individual_command_parts_correctly(self, command_parts):
+    def test_sets_individual_command_parts_correctly(self, command_parts: str) -> None:
         # Given
         cwd = Path("/test/dir")
         path = "test.md"
@@ -422,7 +426,7 @@ This note contains special characters:
 
         # When
         with (
-            patch("tools.get_note._validate_path") as mock_validate,
+            patch("src.zk_mcp.tools.get_note._validate_path") as mock_validate,
             patch("subprocess.run", return_value=mock_result) as mock_run,
         ):
             mock_validate.return_value = cwd / path

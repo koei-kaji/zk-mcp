@@ -1,17 +1,18 @@
 import json
 from pathlib import Path
+from typing import Any, Literal
 from unittest.mock import patch
 
 import pytest
 
-from tools.get_note_paths import get_note_paths
-from tools.models import Note
+from src.zk_mcp.tools.get_note_paths import get_note_paths
+from src.zk_mcp.tools.models import Note
 
 
 class TestGetNotePaths:
     """get_note_paths 関数のテスト"""
 
-    def test_returns_all_notes_when_default_parameters_are_used(self):
+    def test_returns_all_notes_when_default_parameters_are_used(self) -> None:
         """デフォルトパラメータの場合、全てのノートが取得されること"""
         # Given
         cwd = Path("/test/dir")
@@ -22,7 +23,7 @@ class TestGetNotePaths:
 
         # When
         with patch(
-            "tools.get_note_paths.get_notes", return_value=mock_notes
+            "src.zk_mcp.tools.get_note_paths.get_notes", return_value=mock_notes
         ) as mock_get_notes:
             result = get_note_paths(cwd)
 
@@ -56,15 +57,15 @@ class TestGetNotePaths:
         ],
     )
     def test_adds_match_option_when_single_include_str_is_specified(
-        self, include_str, expected_match
-    ):
+        self, include_str: list[str], expected_match: str
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         mock_notes: list[Note] = [Note(path=Path("note1.md"), title="Note 1", tags=[])]
 
         # When
         with patch(
-            "tools.get_note_paths.get_notes", return_value=mock_notes
+            "src.zk_mcp.tools.get_note_paths.get_notes", return_value=mock_notes
         ) as mock_get_notes:
             get_note_paths(cwd, include_str=include_str)
 
@@ -101,15 +102,18 @@ class TestGetNotePaths:
         ],
     )
     def test_adds_match_option_when_multiple_include_str_are_specified(
-        self, include_str, include_str_operand, expected_match
-    ):
+        self,
+        include_str: list[str],
+        include_str_operand: Literal["AND", "OR"],
+        expected_match: str,
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         mock_notes: list[Note] = [Note(path=Path("note1.md"), title="Note 1", tags=[])]
 
         # When
         with patch(
-            "tools.get_note_paths.get_notes", return_value=mock_notes
+            "src.zk_mcp.tools.get_note_paths.get_notes", return_value=mock_notes
         ) as mock_get_notes:
             get_note_paths(
                 cwd,
@@ -141,15 +145,15 @@ class TestGetNotePaths:
         ],
     )
     def test_adds_exclude_match_option_when_exclude_str_is_specified(
-        self, exclude_str, expected_match
-    ):
+        self, exclude_str: list[str], expected_match: str
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         mock_notes: list[Note] = [Note(path=Path("note1.md"), title="Note 1", tags=[])]
 
         # When
         with patch(
-            "tools.get_note_paths.get_notes", return_value=mock_notes
+            "src.zk_mcp.tools.get_note_paths.get_notes", return_value=mock_notes
         ) as mock_get_notes:
             get_note_paths(cwd, exclude_str=exclude_str)
 
@@ -177,8 +181,8 @@ class TestGetNotePaths:
         ],
     )
     def test_adds_tag_option_when_single_include_tags_is_specified(
-        self, include_tags, expected_tag
-    ):
+        self, include_tags: list[str], expected_tag: str
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         mock_notes: list[Note] = [
@@ -187,7 +191,7 @@ class TestGetNotePaths:
 
         # When
         with patch(
-            "tools.get_note_paths.get_notes", return_value=mock_notes
+            "src.zk_mcp.tools.get_note_paths.get_notes", return_value=mock_notes
         ) as mock_get_notes:
             get_note_paths(cwd, include_tags=include_tags)
 
@@ -224,8 +228,11 @@ class TestGetNotePaths:
         ],
     )
     def test_adds_tag_option_when_multiple_include_tags_are_specified(
-        self, include_tags, include_tags_operand, expected_tag
-    ):
+        self,
+        include_tags: list[str],
+        include_tags_operand: Literal["AND", "OR"],
+        expected_tag: str,
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         mock_notes: list[Note] = [
@@ -234,7 +241,7 @@ class TestGetNotePaths:
 
         # When
         with patch(
-            "tools.get_note_paths.get_notes", return_value=mock_notes
+            "src.zk_mcp.tools.get_note_paths.get_notes", return_value=mock_notes
         ) as mock_get_notes:
             get_note_paths(
                 cwd,
@@ -266,22 +273,22 @@ class TestGetNotePaths:
         ],
     )
     def test_adds_exclude_tag_option_when_exclude_tags_is_specified(
-        self, exclude_tags, expected_tag
-    ):
+        self, exclude_tags: list[str], expected_tag: str
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         mock_notes: list[Note] = [Note(path=Path("note1.md"), title="Note 1", tags=[])]
 
         # When
         with patch(
-            "tools.get_note_paths.get_notes", return_value=mock_notes
+            "src.zk_mcp.tools.get_note_paths.get_notes", return_value=mock_notes
         ) as mock_get_notes:
             get_note_paths(cwd, exclude_tags=exclude_tags)
 
         # Then
         mock_get_notes.assert_called_once_with(cwd, ["--tag", expected_tag])
 
-    def test_adds_all_options_when_all_filters_are_specified(self):
+    def test_adds_all_options_when_all_filters_are_specified(self) -> None:
         """全てのフィルタが指定された場合、全てのオプションが追加されること"""
         # Given
         cwd = Path("/test/dir")
@@ -295,7 +302,7 @@ class TestGetNotePaths:
 
         # When
         with patch(
-            "tools.get_note_paths.get_notes", return_value=mock_notes
+            "src.zk_mcp.tools.get_note_paths.get_notes", return_value=mock_notes
         ) as mock_get_notes:
             get_note_paths(
                 cwd,
@@ -362,15 +369,18 @@ class TestGetNotePaths:
         ],
     )
     def test_processes_various_include_str_patterns_correctly(
-        self, include_str, include_str_operand, expected_match
-    ):
+        self,
+        include_str: list[str],
+        include_str_operand: Literal["AND", "OR"],
+        expected_match: str,
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         mock_notes: list[Note] = [Note(path=Path("note1.md"), title="Note 1", tags=[])]
 
         # When
         with patch(
-            "tools.get_note_paths.get_notes", return_value=mock_notes
+            "src.zk_mcp.tools.get_note_paths.get_notes", return_value=mock_notes
         ) as mock_get_notes:
             get_note_paths(
                 cwd, include_str=include_str, include_str_operand=include_str_operand
@@ -421,8 +431,11 @@ class TestGetNotePaths:
         ],
     )
     def test_processes_various_include_tags_patterns_correctly(
-        self, include_tags, include_tags_operand, expected_tag
-    ):
+        self,
+        include_tags: list[str],
+        include_tags_operand: Literal["AND", "OR"],
+        expected_tag: str,
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         mock_notes: list[Note] = [
@@ -431,7 +444,7 @@ class TestGetNotePaths:
 
         # When
         with patch(
-            "tools.get_note_paths.get_notes", return_value=mock_notes
+            "src.zk_mcp.tools.get_note_paths.get_notes", return_value=mock_notes
         ) as mock_get_notes:
             get_note_paths(
                 cwd,
@@ -442,21 +455,23 @@ class TestGetNotePaths:
         # Then
         mock_get_notes.assert_called_once_with(cwd, ["--tag", expected_tag])
 
-    def test_returns_empty_json_when_empty_list_is_returned(self):
+    def test_returns_empty_json_when_empty_list_is_returned(self) -> None:
         """空のリストが返された場合、空のJSONが返されること"""
         # Given
         cwd = Path("/test/dir")
         mock_notes: list[Note] = []
 
         # When
-        with patch("tools.get_note_paths.get_notes", return_value=mock_notes):
+        with patch(
+            "src.zk_mcp.tools.get_note_paths.get_notes", return_value=mock_notes
+        ):
             result = get_note_paths(cwd)
 
         # Then
         result_data = json.loads(result)
         assert result_data["notes"] == []
 
-    def test_serializes_json_correctly(self):
+    def test_serializes_json_correctly(self) -> None:
         """JSONシリアライズが正しく実行されること"""
         # Given
         cwd = Path("/test/dir")
@@ -466,7 +481,9 @@ class TestGetNotePaths:
         ]
 
         # When
-        with patch("tools.get_note_paths.get_notes", return_value=mock_notes):
+        with patch(
+            "src.zk_mcp.tools.get_note_paths.get_notes", return_value=mock_notes
+        ):
             result = get_note_paths(cwd)
 
         # Then
@@ -502,14 +519,16 @@ class TestGetNotePaths:
             ),
         ],
     )
-    def test_processes_filter_combinations_correctly(self, filter_combination):
+    def test_processes_filter_combinations_correctly(
+        self, filter_combination: dict[str, Any]
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         mock_notes: list[Note] = [Note(path=Path("note1.md"), title="Note 1", tags=[])]
 
         # When
         with patch(
-            "tools.get_note_paths.get_notes", return_value=mock_notes
+            "src.zk_mcp.tools.get_note_paths.get_notes", return_value=mock_notes
         ) as mock_get_notes:
             get_note_paths(cwd, **filter_combination)
 

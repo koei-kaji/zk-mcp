@@ -5,13 +5,13 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from tools.create_note import create_note
+from src.zk_mcp.tools.create_note import create_note
 
 
 class TestCreateNote:
     """create_note 関数のテスト"""
 
-    def test_creates_note_when_valid_title_is_given(self):
+    def test_creates_note_when_valid_title_is_given(self) -> None:
         """正常なタイトルが与えられた場合、ノートが作成されること"""
         # Given
         cwd = Path("/test/dir")
@@ -25,10 +25,10 @@ class TestCreateNote:
         # When
         with (
             patch(
-                "tools.create_note._validate_title", return_value=title
+                "src.zk_mcp.tools.create_note._validate_title", return_value=title
             ) as mock_validate_title,
             patch(
-                "tools.create_note._validate_directory", return_value=""
+                "src.zk_mcp.tools.create_note._validate_directory", return_value=""
             ) as mock_validate_dir,
             patch("subprocess.run", return_value=mock_result) as mock_run,
         ):
@@ -49,7 +49,7 @@ class TestCreateNote:
             check=True,
         )
 
-    def test_creates_note_in_directory_when_directory_is_specified(self):
+    def test_creates_note_in_directory_when_directory_is_specified(self) -> None:
         """ディレクトリが指定された場合、ディレクトリ内にノートが作成されること"""
         # Given
         cwd = Path("/test/dir")
@@ -64,10 +64,11 @@ class TestCreateNote:
         # When
         with (
             patch(
-                "tools.create_note._validate_title", return_value=title
+                "src.zk_mcp.tools.create_note._validate_title", return_value=title
             ) as mock_validate_title,
             patch(
-                "tools.create_note._validate_directory", return_value=directory
+                "src.zk_mcp.tools.create_note._validate_directory",
+                return_value=directory,
             ) as mock_validate_dir,
             patch("subprocess.run", return_value=mock_result) as mock_run,
         ):
@@ -109,13 +110,15 @@ class TestCreateNote:
         ],
     )
     def test_raises_runtime_error_when_title_validation_fails(
-        self, title, validation_error
-    ):
+        self, title: str, validation_error: ValueError
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
 
         # When, Then
-        with patch("tools.create_note._validate_title", side_effect=validation_error):
+        with patch(
+            "src.zk_mcp.tools.create_note._validate_title", side_effect=validation_error
+        ):
             with pytest.raises(RuntimeError, match=f"入力値エラー: {validation_error}"):
                 create_note(cwd, title)
 
@@ -135,22 +138,26 @@ class TestCreateNote:
             pytest.param(
                 "dir;",
                 ValueError("ディレクトリ名に危険な文字が含まれています"),
-                id="危険な文字を含むディレクトリ名である場合、RuntimeError が発生すること",
+                id=(
+                    "危険な文字を含むディレクトリ名である場合、"
+                    "RuntimeError が発生すること"
+                ),
             ),
         ],
     )
     def test_raises_runtime_error_when_directory_validation_fails(
-        self, directory, validation_error
-    ):
+        self, directory: str, validation_error: ValueError
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         title = "Test Note"
 
         # When, Then
         with (
-            patch("tools.create_note._validate_title", return_value=title),
+            patch("src.zk_mcp.tools.create_note._validate_title", return_value=title),
             patch(
-                "tools.create_note._validate_directory", side_effect=validation_error
+                "src.zk_mcp.tools.create_note._validate_directory",
+                side_effect=validation_error,
             ),
         ):
             with pytest.raises(RuntimeError, match=f"入力値エラー: {validation_error}"):
@@ -173,7 +180,9 @@ class TestCreateNote:
             ),
         ],
     )
-    def test_raises_runtime_error_when_zk_command_fails(self, error_message):
+    def test_raises_runtime_error_when_zk_command_fails(
+        self, error_message: str
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         title = "Test Note"
@@ -183,8 +192,8 @@ class TestCreateNote:
 
         # When, Then
         with (
-            patch("tools.create_note._validate_title", return_value=title),
-            patch("tools.create_note._validate_directory", return_value=""),
+            patch("src.zk_mcp.tools.create_note._validate_title", return_value=title),
+            patch("src.zk_mcp.tools.create_note._validate_directory", return_value=""),
             patch("subprocess.run", side_effect=mock_error),
         ):
             with pytest.raises(
@@ -192,7 +201,7 @@ class TestCreateNote:
             ):
                 create_note(cwd, title)
 
-    def test_calculates_relative_path_correctly(self):
+    def test_calculates_relative_path_correctly(self) -> None:
         """相対パスが正しく計算されること"""
         # Given
         cwd = Path("/test/dir")
@@ -205,8 +214,8 @@ class TestCreateNote:
 
         # When
         with (
-            patch("tools.create_note._validate_title", return_value=title),
-            patch("tools.create_note._validate_directory", return_value=""),
+            patch("src.zk_mcp.tools.create_note._validate_title", return_value=title),
+            patch("src.zk_mcp.tools.create_note._validate_directory", return_value=""),
             patch("subprocess.run", return_value=mock_result),
         ):
             result = create_note(cwd, title)
@@ -255,7 +264,9 @@ class TestCreateNote:
             ),
         ],
     )
-    def test_processes_various_title_patterns_correctly(self, title, expected_title):
+    def test_processes_various_title_patterns_correctly(
+        self, title: str, expected_title: str
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         mock_created_path = "/test/dir/note.md"
@@ -267,9 +278,10 @@ class TestCreateNote:
         # When
         with (
             patch(
-                "tools.create_note._validate_title", return_value=expected_title
+                "src.zk_mcp.tools.create_note._validate_title",
+                return_value=expected_title,
             ) as mock_validate_title,
-            patch("tools.create_note._validate_directory", return_value=""),
+            patch("src.zk_mcp.tools.create_note._validate_directory", return_value=""),
             patch("subprocess.run", return_value=mock_result) as mock_run,
         ):
             result = create_note(cwd, title)
@@ -312,8 +324,8 @@ class TestCreateNote:
         ],
     )
     def test_processes_various_directory_patterns_correctly(
-        self, directory, expected_directory
-    ):
+        self, directory: str, expected_directory: str
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         title = "Test Note"
@@ -328,9 +340,10 @@ class TestCreateNote:
 
         # When
         with (
-            patch("tools.create_note._validate_title", return_value=title),
+            patch("src.zk_mcp.tools.create_note._validate_title", return_value=title),
             patch(
-                "tools.create_note._validate_directory", return_value=expected_directory
+                "src.zk_mcp.tools.create_note._validate_directory",
+                return_value=expected_directory,
             ) as mock_validate_dir,
             patch("subprocess.run", return_value=mock_result) as mock_run,
         ):
@@ -359,7 +372,7 @@ class TestCreateNote:
             check=True,
         )
 
-    def test_serializes_json_correctly(self):
+    def test_serializes_json_correctly(self) -> None:
         """JSONシリアライズが正しく実行されること"""
         # Given
         cwd = Path("/test/dir")
@@ -372,8 +385,8 @@ class TestCreateNote:
 
         # When
         with (
-            patch("tools.create_note._validate_title", return_value=title),
-            patch("tools.create_note._validate_directory", return_value=""),
+            patch("src.zk_mcp.tools.create_note._validate_title", return_value=title),
+            patch("src.zk_mcp.tools.create_note._validate_directory", return_value=""),
             patch("subprocess.run", return_value=mock_result),
         ):
             result = create_note(cwd, title)
@@ -406,7 +419,9 @@ class TestCreateNote:
             ),
         ],
     )
-    def test_sets_zk_command_arguments_correctly(self, directory, expected_command):
+    def test_sets_zk_command_arguments_correctly(
+        self, directory: str, expected_command: list[str]
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         title = "Test Note"
@@ -418,8 +433,11 @@ class TestCreateNote:
 
         # When
         with (
-            patch("tools.create_note._validate_title", return_value=title),
-            patch("tools.create_note._validate_directory", return_value=directory),
+            patch("src.zk_mcp.tools.create_note._validate_title", return_value=title),
+            patch(
+                "src.zk_mcp.tools.create_note._validate_directory",
+                return_value=directory,
+            ),
             patch("subprocess.run", return_value=mock_result) as mock_run,
         ):
             create_note(cwd, title, directory if directory else "")
@@ -459,8 +477,8 @@ class TestCreateNote:
         ],
     )
     def test_handles_path_with_trailing_newlines_correctly(
-        self, mock_created_path, expected_path
-    ):
+        self, mock_created_path: str, expected_path: str
+    ) -> None:
         # Given
         cwd = Path("/test/dir")
         title = "Test Note"
@@ -471,8 +489,8 @@ class TestCreateNote:
 
         # When
         with (
-            patch("tools.create_note._validate_title", return_value=title),
-            patch("tools.create_note._validate_directory", return_value=""),
+            patch("src.zk_mcp.tools.create_note._validate_title", return_value=title),
+            patch("src.zk_mcp.tools.create_note._validate_directory", return_value=""),
             patch("subprocess.run", return_value=mock_result),
         ):
             result = create_note(cwd, title)
@@ -481,7 +499,7 @@ class TestCreateNote:
         result_data = json.loads(result)
         assert result_data["path"] == expected_path
 
-    def test_executes_both_validations_correctly(self):
+    def test_executes_both_validations_correctly(self) -> None:
         """両方の検証が正しく実行されること"""
         # Given
         cwd = Path("/test/dir")
@@ -496,10 +514,11 @@ class TestCreateNote:
         # When
         with (
             patch(
-                "tools.create_note._validate_title", return_value=title
+                "src.zk_mcp.tools.create_note._validate_title", return_value=title
             ) as mock_validate_title,
             patch(
-                "tools.create_note._validate_directory", return_value=directory
+                "src.zk_mcp.tools.create_note._validate_directory",
+                return_value=directory,
             ) as mock_validate_dir,
             patch("subprocess.run", return_value=mock_result),
         ):
