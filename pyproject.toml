@@ -13,6 +13,7 @@ authors = [
     { name = "koei-kaji", email = "koei.kaji@gmail.com" }
 ]
 dependencies = [
+    "injector>=0.22.0",
     "mcp[cli]>=1.6.0",
     "pydantic-settings>=2.8.1",
 ]

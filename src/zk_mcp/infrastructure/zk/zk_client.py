@@ -1,0 +1,35 @@
+import subprocess
+from pathlib import Path
+
+from ..._base_models.base_model import BaseFrozenModel
+
+
+class ZkClient(BaseFrozenModel):
+    cwd: Path
+
+    def get_lists(
+        self,
+        fmt: str = "",
+        conditions: list[str] = [],
+    ) -> list[str]:
+        try:
+            command = [
+                "zk",
+                "list",
+                "--quiet",
+                "--sort",
+                "title",
+                "--format",
+                fmt,
+            ]
+            stdout = subprocess.run(
+                [*command, *conditions],
+                capture_output=True,
+                text=True,
+                cwd=self.cwd,
+                check=True,
+            )
+            return stdout.stdout.strip().splitlines()
+
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError(f"Error: {e.stderr}") from e
