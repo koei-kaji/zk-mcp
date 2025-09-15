@@ -13,10 +13,7 @@ T = TypeVar("T")
 
 
 class ZkNoteQueryService(IFNoteQueryService):
-    _client: ZkClient
-
-    def __init__(self, client: ZkClient) -> None:
-        self._client = client
+    client: ZkClient
 
     def _paginate(
         self, items: list[T], page: int, per_page: int
@@ -53,7 +50,7 @@ class ZkNoteQueryService(IFNoteQueryService):
         # 全文検索の検索条件を追加
         conditions.extend(input.search_patterns)
 
-        results = self._client.get_lists(
+        results = self.client.get_lists(
             "{{path}}|{{title}}", ["--match", f" {input.match_mode} ".join(conditions)]
         )
 

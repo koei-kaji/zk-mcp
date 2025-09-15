@@ -1,15 +1,10 @@
 import abc
-from typing import Literal
+from pathlib import Path
 
-from ..if_repository import IFRepository
+from .._if_repository import IFRepository
+from .note import Note
 
 
 class IFNoteRepository(IFRepository):
     @abc.abstractmethod
-    def find_notes(
-        page: int = 1,
-        per_page: int = 20,
-        title_patterns: list[str] = [],
-        search_patterns: list[str] = [],
-        match_mode: Literal["AND", "OR"] = "AND",
-    ) -> : ...
+    def find_note_content(self, path: Path) -> Note: ...
